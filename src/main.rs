@@ -1,7 +1,17 @@
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 use std::str::FromStr;
 
 fn main() {
-    println!("Hello, world!");
+    let filename = "input/input-day-1.txt";
+
+    println!("In file {}", filename);
+    let file = File::open(filename).expect("file not found");
+
+    let reader = BufReader::new(file);
+    let lines = reader.lines().map(|line| line.unwrap()).collect();
+
+    println!("{}", calc_frequency(lines));
 }
 
 fn calc_frequency(diffs: Vec<String>) -> i32 {
