@@ -15,16 +15,16 @@ fn main() {
 }
 
 fn calculate_checksum(box_ids: Vec<String>) -> u32 {
-    let (duplicates, triplets) = box_ids.iter().fold((0, 0), |acc, item| {
-        let (total_duplicate_count, total_triplet_count) = acc;
-        let (has_duplicate, has_triplet) = check_box_id(item);
+    let (doublets, triplets) = box_ids.iter().fold((0, 0), |acc, item| {
+        let (total_doublet_count, total_triplet_count) = acc;
+        let (has_doublet, has_triplet) = check_box_id(item);
         (
-            total_duplicate_count + has_duplicate,
+            total_doublet_count + has_doublet,
             total_triplet_count + has_triplet,
         )
     });
 
-    duplicates * triplets
+    doublets * triplets
 }
 
 fn check_box_id(box_id: &String) -> (u32, u32) {
@@ -39,10 +39,10 @@ fn check_box_id(box_id: &String) -> (u32, u32) {
     }
 
     map.iter().fold((0, 0), |acc, (_, count)| {
-        let (has_duplicate, has_triplet) = acc;
+        let (has_doublet, has_triplet) = acc;
         match count {
             2 => (1, has_triplet),
-            3 => (has_duplicate, 1),
+            3 => (has_doublet, 1),
             _ => acc,
         }
     })
