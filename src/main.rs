@@ -1,57 +1,51 @@
-use std::collections::HashSet;
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use std::str::FromStr;
 
 fn main() {
-    let filename = "input/input-day-1-part-2.txt";
+    let filename = "input/input-day-2.txt";
 
     println!("In file {}", filename);
     let file = File::open(filename).expect("file not found");
 
     let reader = BufReader::new(file);
-    let lines = reader
-        .lines()
-        .map(|line| i32::from_str(&line.unwrap()).expect("error parsing string to number"))
-        .collect();
+    let lines = reader.lines().map(|line| line.unwrap()).collect();
 
-    println!("{}", calc_repeated_frequency(lines));
+    println!("{}", calculate_checksum(lines));
 }
 
-fn calc_repeated_frequency(changes: Vec<i32>) -> i32 {
-    let max_index = changes.len() - 1;
+fn calculate_checksum(box_ids: Vec<String>) -> u32 {
+    let (duplicates, triplets) = box_ids.iter().fold((0, 0), |acc, item| {
+        let (total_duplicate_count, total_triplet_count) = acc;
+        let (has_duplicate, has_triplet) = check_box_id(item);
+        (
+            total_duplicate_count + has_duplicate,
+            total_triplet_count + has_triplet,
+        )
+    });
 
-    let mut set = HashSet::<i32>::new();
-    let mut frequency = 0;
-    let mut index: usize = 0;
+    duplicates * triplets
+}
 
-    set.insert(frequency);
+fn check_box_id(box_id: &String) -> (u32, u32) {
+    let mut map = HashMap::<char, u32>::new();
 
-    loop {
-        frequency = calc_next_frequency(frequency, &changes[index]);
-
-        if set.contains(&frequency) {
-            break;
-        }
-
-        set.insert(frequency);
-
-        if index == max_index {
-            index = 0
-        } else {
-            index += 1
-        }
+    for item in box_id.chars() {
+        let new_value = match map.get(&item) {
+            Some(x) => x + 1,
+            None => 1,
+        };
+        map.insert(item, new_value);
     }
 
-    frequency
-}
-
-fn calc_frequency(changes: Vec<i32>) -> i32 {
-    changes.iter().fold(0, calc_next_frequency)
-}
-
-fn calc_next_frequency(acc: i32, item: &i32) -> i32 {
-    acc + item
+    map.iter().fold((0, 0), |acc, (_, count)| {
+        let (has_duplicate, has_triplet) = acc;
+        match count {
+            2 => (1, has_triplet),
+            3 => (has_duplicate, 1),
+            _ => acc,
+        }
+    })
 }
 
 #[cfg(test)]
@@ -59,29 +53,16 @@ mod tests {
     use super::*;
 
     #[test]
-    fn calc_frequency_test() {
-        let input = vec![1, 1, 1];
-        assert_eq!(3, calc_frequency(input));
-
-        let input = vec![1, 1, -2];
-        assert_eq!(0, calc_frequency(input));
-
-        let input = vec![-1, -2, -3];
-        assert_eq!(-6, calc_frequency(input));
-    }
-
-    #[test]
-    fn calc_repeated_frequency_test() {
-        let input = vec![1, -1];
-        assert_eq!(0, calc_repeated_frequency(input));
-
-        let input = vec![3, 3, 4, -2, -4];
-        assert_eq!(10, calc_repeated_frequency(input));
-
-        let input = vec![-6, 3, 8, 5, -6];
-        assert_eq!(5, calc_repeated_frequency(input));
-
-        let input = vec![7, 7, -2, -7, -4];
-        assert_eq!(14, calc_repeated_frequency(input));
+    fn calc_checksum_test() {
+        let input = vec![
+            "abcdef".to_string(),
+            "bababc".to_string(),
+            "abbcde".to_string(),
+            "abcccd".to_string(),
+            "aabcdd".to_string(),
+            "abcdee".to_string(),
+            "ababab".to_string(),
+        ];
+        assert_eq!(12, calculate_checksum(input));
     }
 }
