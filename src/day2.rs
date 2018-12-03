@@ -1,3 +1,6 @@
+#![feature(test)]
+extern crate test;
+
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -101,9 +104,10 @@ fn inner_join(a: &str, b: &str) -> String {
 }
 
 #[cfg(test)]
-mod tests {
+mod day2_tests {
     use super::*;
-
+    extern crate test;
+    use test::Bencher;
     #[test]
     fn calc_checksum_test() {
         let input = vec![
@@ -130,5 +134,10 @@ mod tests {
             "wvxyz".to_string(),
         ];
         assert_eq!(Some("fgij".to_string()), common_letters(&input));
+    }
+
+    #[bench]
+    fn bench(b: &mut Bencher) {
+        b.iter(|| main());
     }
 }

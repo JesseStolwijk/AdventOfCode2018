@@ -1,7 +1,12 @@
+#![feature(test)]
+extern crate test;
+
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::str::FromStr;
+#[cfg(test)]
+mod day2;
 
 fn main() {
     let filename = "input/input-day-3.txt";
@@ -10,22 +15,18 @@ fn main() {
     let file = File::open(filename).expect("file not found");
 
     let reader = BufReader::new(file);
-    let claims: Vec<Claim> = reader
-        .lines()
-        .map(|line| parse_claim(&line.unwrap()))
-        .collect();
+    let claims: Vec<String> = reader.lines().map(|line| line.unwrap()).collect();
 
     println!("{:?}", get_claim_no_collisions(claims));
 }
 
 //PART 1
-fn count_overlap(claims: Vec<Claim>) -> usize {
+fn count_collisions(claims: Vec<Claim>) -> usize {
     create_collision_map(&claims)
         .iter()
         .fold(0, |acc, (_, count)| if count >= &2 { acc + 1 } else { acc })
 }
 
-//PART 2
 fn create_collision_map(claims: &Vec<Claim>) -> HashMap<usize, usize> {
     claims
         .iter()
@@ -39,11 +40,16 @@ fn create_collision_map(claims: &Vec<Claim>) -> HashMap<usize, usize> {
             acc
         })
 }
+//PART 2
+fn get_claim_no_collisions(claim_strings: Vec<String>) -> Option<usize> {
+    let claims = claim_strings
+        .iter()
+        .map(|claim| parse_claim(claim))
+        .collect();
 
-fn get_claim_no_collisions(claims: Vec<Claim>) -> Option<usize> {
     let map = create_collision_map(&claims);
     for claim in claims.iter() {
-        if map.has_collision(claim) {
+        if !map.has_collision(claim) {
             return Some(claim.id.clone());
         }
     }
@@ -117,6 +123,8 @@ struct Claim {
 #[cfg(test)]
 mod tests {
     use super::*;
+    extern crate test;
+    use test::Bencher;
 
     #[test]
     fn parse_claim_test() {
@@ -129,5 +137,20 @@ mod tests {
             height: 4,
         };
         assert_eq!(expected, parse_claim(&input));
+    }
+
+    #[bench]
+    fn bench(b: &mut Bencher) {
+        let filename = "input/input-day-3.txt";
+
+        println!("In file {}", filename);
+        let file = File::open(filename).expect("file not found");
+
+        let reader = BufReader::new(file);
+        let claims: Vec<String> = reader.lines().map(|line| line.unwrap()).collect();
+
+        b.iter(|| {
+            get_claim_no_collisions(claims.to_owned());
+        });
     }
 }
