@@ -15,22 +15,52 @@ fn main() {
         .map(|line| parse_claim(&line.unwrap()))
         .collect();
 
-    println!("{}", count_overlap(claims));
+    println!("{:?}", get_claim_no_collisions(claims));
 }
 
 fn count_overlap(claims: Vec<Claim>) -> usize {
-    let mut map = HashMap::<usize, usize>::new();
+    create_collision_map(&claims)
+        .iter()
+        .fold(0, |acc, (_, count)| if count >= &2 { acc + 1 } else { acc })
+}
 
-    for claim in claims.iter() {
-        for x in claim.margin_left..(claim.margin_left + claim.width) {
-            for y in claim.margin_right..(claim.margin_right + claim.height) {
-                *map.entry(x + y * 1000).or_insert(0) += 1;
+fn create_collision_map(claims: &Vec<Claim>) -> HashMap<usize, usize> {
+    claims
+        .iter()
+        //ugly
+        .fold(HashMap::<usize, usize>::new(), |mut acc, claim| {
+            for x in claim.margin_left..(claim.margin_left + claim.width) {
+                for y in claim.margin_right..(claim.margin_right + claim.height) {
+                    *acc.entry(x + y * 1000).or_insert(0) += 1;
+                }
             }
+            acc
+        })
+}
+
+fn get_claim_no_collisions(claims: Vec<Claim>) -> Option<usize> {
+    let map = create_collision_map(&claims);
+    for claim in claims.iter() {
+        if map.has_collision(claim) {
+            return Some(claim.id.clone());
         }
     }
 
-    map.iter()
-        .fold(0, |acc, (_, count)| if count >= &2 { acc + 1 } else { acc })
+    None
+}
+
+impl Collision for HashMap<usize, usize> {
+    //ugly
+    fn has_collision(&self, claim: &Claim) -> bool {
+        for x in claim.margin_left..(claim.margin_left + claim.width) {
+            for y in claim.margin_right..(claim.margin_right + claim.height) {
+                if self.get(&(x + y * 1000)).unwrap_or(&0) > &1 {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }
 
 fn parse_claim(claim: &str) -> Claim {
@@ -67,6 +97,10 @@ fn parse_pair(s: &str, seperator: char) -> Option<(usize, usize)> {
             _ => None,
         },
     }
+}
+
+trait Collision {
+    fn has_collision(&self, claim: &Claim) -> bool;
 }
 
 #[derive(Eq, PartialEq, Debug)]
