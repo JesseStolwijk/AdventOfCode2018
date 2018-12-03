@@ -47,11 +47,7 @@ fn calc_repeated_frequency(changes: Vec<i32>) -> i32 {
 }
 
 fn calc_frequency(changes: Vec<i32>) -> i32 {
-    changes.iter().fold(0, calc_next_frequency)
-}
-
-fn calc_next_frequency(acc: i32, item: &i32) -> i32 {
-    acc + item
+    changes.iter().sum()
 }
 
 #[cfg(test)]
