@@ -1,27 +1,27 @@
-#![feature(test)]
-extern crate test;
-
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-fn main() {
-    let filename = "input/input-day-2.txt";
-
+fn get_input(filename: &str) -> Vec<String> {
     println!("In file {}", filename);
     let file = File::open(filename).expect("file not found");
 
     let reader = BufReader::new(file);
-    let lines: Vec<String> = reader.lines().map(|line| line.unwrap()).collect();
+    reader.lines().map(|line| line.unwrap()).collect()
+}
 
-    match common_letters(&lines) {
-        Some(result) => println!("{}", result),
-        None => panic!("HELP!!! NO AWNSER FOUND!!"),
-    }
+pub fn part1() -> Option<String> {
+    let input = get_input("input/input-day-2.txt");
+    Some(calculate_checksum(&input).to_string())
+}
+
+pub fn part2() -> Option<String> {
+    let input = get_input("input/input-day-2.txt");
+    common_letters(&input)
 }
 
 // PART 1
-fn calculate_checksum(box_ids: Vec<String>) -> u32 {
+fn calculate_checksum(box_ids: &Vec<String>) -> u32 {
     let (doublets, triplets) = box_ids.iter().fold((0, 0), |acc, item| {
         let (total_doublet_count, total_triplet_count) = acc;
         let (has_doublet, has_triplet) = check_box_id(item);
@@ -104,7 +104,7 @@ fn inner_join(a: &str, b: &str) -> String {
 }
 
 #[cfg(test)]
-mod day2_tests {
+mod tests {
     use super::*;
     extern crate test;
     use test::Bencher;
@@ -119,7 +119,7 @@ mod day2_tests {
             "abcdee".to_string(),
             "ababab".to_string(),
         ];
-        assert_eq!(12, calculate_checksum(input));
+        assert_eq!(12, calculate_checksum(&input));
     }
 
     #[test]
@@ -138,6 +138,6 @@ mod day2_tests {
 
     #[bench]
     fn bench(b: &mut Bencher) {
-        b.iter(|| main());
+        b.iter(|| part2());
     }
 }

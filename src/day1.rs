@@ -3,27 +3,31 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::str::FromStr;
 
-fn main() {
-    let filename = "input/input-day-1-part-2.txt";
-
-    println!("In file {}", filename);
+fn get_input(filename: &str) -> Vec<i32> {
     let file = File::open(filename).expect("file not found");
 
     let reader = BufReader::new(file);
-    let lines = reader
+
+    reader
         .lines()
         .map(|line| i32::from_str(&line.unwrap()).expect("error parsing string to number"))
-        .collect();
-
-    println!("{}", calc_repeated_frequency(lines));
+        .collect()
 }
 
-// PART 1
+pub fn part1() -> Option<String> {
+    let input = get_input("input/input-day-1.txt");
+    Some(calc_frequency(input).to_string())
+}
+
+pub fn part2() -> Option<String> {
+    let input = get_input("input/input-day-1-part-2.txt");
+    Some(calc_repeated_frequency(input).to_string())
+}
+
 fn calc_frequency(changes: Vec<i32>) -> i32 {
     changes.iter().sum()
 }
 
-// PART 2
 fn calc_repeated_frequency(changes: Vec<i32>) -> i32 {
     let max_index = changes.len() - 1;
 
@@ -34,7 +38,7 @@ fn calc_repeated_frequency(changes: Vec<i32>) -> i32 {
     set.insert(frequency);
 
     loop {
-        frequency = calc_next_frequency(frequency, &changes[index]);
+        frequency += &changes[index];
 
         if set.contains(&frequency) {
             break;
