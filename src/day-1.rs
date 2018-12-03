@@ -18,6 +18,12 @@ fn main() {
     println!("{}", calc_repeated_frequency(lines));
 }
 
+// PART 1
+fn calc_frequency(changes: Vec<i32>) -> i32 {
+    changes.iter().sum()
+}
+
+// PART 2
 fn calc_repeated_frequency(changes: Vec<i32>) -> i32 {
     let max_index = changes.len() - 1;
 
@@ -44,10 +50,6 @@ fn calc_repeated_frequency(changes: Vec<i32>) -> i32 {
     }
 
     frequency
-}
-
-fn calc_frequency(changes: Vec<i32>) -> i32 {
-    changes.iter().sum()
 }
 
 #[cfg(test)]

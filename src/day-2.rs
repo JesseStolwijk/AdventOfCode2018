@@ -17,6 +17,7 @@ fn main() {
     }
 }
 
+// PART 1
 fn calculate_checksum(box_ids: Vec<String>) -> u32 {
     let (doublets, triplets) = box_ids.iter().fold((0, 0), |acc, item| {
         let (total_doublet_count, total_triplet_count) = acc;
@@ -51,6 +52,7 @@ fn check_box_id(box_id: &String) -> (u32, u32) {
     })
 }
 
+// PART 2
 fn common_letters(box_ids: &Vec<String>) -> Option<String> {
     for box_id in box_ids {
         let result = is_correct_box_id(&box_id, &box_ids);

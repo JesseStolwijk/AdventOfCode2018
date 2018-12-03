@@ -18,12 +18,14 @@ fn main() {
     println!("{:?}", get_claim_no_collisions(claims));
 }
 
+//PART 1
 fn count_overlap(claims: Vec<Claim>) -> usize {
     create_collision_map(&claims)
         .iter()
         .fold(0, |acc, (_, count)| if count >= &2 { acc + 1 } else { acc })
 }
 
+//PART 2
 fn create_collision_map(claims: &Vec<Claim>) -> HashMap<usize, usize> {
     claims
         .iter()
